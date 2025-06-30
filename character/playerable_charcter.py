@@ -1,13 +1,12 @@
 #キャラクターの入力管理を行うクラス
 import pygame
-import pygame
 
 class PlayerableCharacter:
     def __init__(self, player):
         self.player = player  # プレイヤーオブジェクト格納
         self.attack_pressed = False  # 攻撃ボタンの状態管理
     
-    def handle_input(self):
+    def handle_input(self, enemies=None):
         keys = pygame.key.get_pressed()
         
         # 移動入力
@@ -26,9 +25,10 @@ class PlayerableCharacter:
         
         # 攻撃ボタンが押された瞬間のみ攻撃を実行（連続攻撃を防ぐ）
         if attack_key and not self.attack_pressed:
-            # 攻撃処理は外部で実装される
-            pass
-        
+            if enemies:
+                self.player.attack(enemies)
+
+        # 攻撃ボタンの状態を更新
         self.attack_pressed = attack_key
     
     def is_attack_pressed(self):
