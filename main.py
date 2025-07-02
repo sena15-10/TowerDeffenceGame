@@ -1,18 +1,44 @@
 import pygame
+import random
 from character.Player.sord_player import SordPlayer
 from enemy.slime.slime import Slime
 from obstacle.barricade import Barricade
+from map.base_map import BaseMap
+from spawner.slime_spawner import SlimeSpawner
 
 # Pygame initialization
 pygame.init()
+
 #パソコンの画面サイズに合わせてウィンドウを作成
 width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
 screen = pygame.display.set_mode((width,height))
 pygame.display.set_caption("Pygame Example")
+
+# マップを作成
+game_map = BaseMap(2500, 2500, width, height)
+
 player = SordPlayer("Hero", 100, 10, 5)  # speedを1に
-barricade = Barricade(400, 300, 100, 50, 100)  # 障害物を作成
-enemy = Slime("Slime", 50, 5, 2,player)  # スライムのインスタンスを作成
-enemies = [enemy]
+enemies = []
+
+# スポナーを配置
+spawners = []
+for _ in range(random.randint(4, 20)):
+    spawner_x = random.randint(0, game_map.width - 50)
+    spawner_y = random.randint(0, game_map.height - 50)
+    spawner = SlimeSpawner(spawner_x, spawner_y, 5000, game_map, enemies, player) # 5秒ごとにスライムを生成
+    spawners.append(spawner)
+    game_map.add_object(spawner)
+
+# バリケードを配置
+for _ in range(random.randint(3, 4)):
+    barricade_x = random.randint(0, game_map.width - 100)
+    barricade_y = random.randint(0, game_map.height - 50)
+    barricade = Barricade(barricade_x, barricade_y,1000, 100, 50)
+    game_map.add_object(barricade)
+
+# オブジェクトをマップに追加
+game_map.add_object(player)
+
 clock = pygame.time.Clock()  # 追加
 
 # Main loop
@@ -24,16 +50,22 @@ while running:
 
     # ターゲットリストを動的に作成
     targets = [player]
-    if not barricade.destroyed:
-        targets.append(barricade)
-    enemy.set_target(targets)
+    for obj in game_map.objects:
+        if isinstance(obj, Barricade) and not obj.hp <= 0:  # バリケードが破壊されていない場合
+            targets.append(obj)
+    
+    for enemy in enemies:
+        enemy.set_target(targets)
 
-    player.update(enemies)  # 敵のリストを渡す
-    enemy.update()  # Update enemy character
+    player.update(enemies, game_map)  # 敵のリストとマップを渡す
+    for spawner in spawners:
+        spawner.update()
+    for enemy in enemies:
+        enemy.update()  # Update enemy character
+    game_map.update(player) #プレイヤーに合わせてカメラを更新
+
     screen.fill((0, 0, 0))  # Clear screen with black
-    player.draw(screen)  # Draw player character
-    barricade.draw(screen)  # Draw barricade
-    enemy.draw(screen)   # Draw enemy character
+    game_map.draw(screen)   # Draw map and objects
     pygame.display.flip()   # Update display
     clock.tick(60)  # 追加
 

@@ -33,16 +33,16 @@ class Character:
             self.direction = self.direction.normalize()
 
 
-    def update(self, enemies=None):
+    def update(self, enemies=None, game_map=None):
         #入力値をもとに動く
         if self.playerable_character:
-            self.playerable_character.handle_input(enemies)
+            self.playerable_character.handle_input(enemies, game_map)
         self.rect.x += self.direction.x * self.speed
         self.rect.y += self.direction.y * self.speed
 
-    def draw(self,surface):
-        #画面に描画
-        surface.blit(self.image, self.rect)
+    def draw(self, surface, camera):
+        # カメラからの相対位置を計算して描画
+        surface.blit(self.image, self.rect.move(-camera.left, -camera.top))
     def is_alive(self):
         #キャラクターが生きているかどうかを確認
         return self.current_health > 0
