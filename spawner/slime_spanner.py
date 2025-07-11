@@ -1,7 +1,6 @@
 import pygame
 import random
 from enemy.slime.slime import Slime
-from obstacle.base_obstacle import BaseObstacle
 from resource.resouce_maneger import ResouceManeger
 class SlimeSpawner:
     def __init__(self, x, y, spawn_interval, game_map, enemies_list, player):

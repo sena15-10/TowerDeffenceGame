@@ -1,6 +1,5 @@
 import pygame
 from resource.map_resouce import TILE_DEFINITIONS
-from resource.resouce_maneger import ResouceManeger
 
 #マップクラスの基底クラス
 """
