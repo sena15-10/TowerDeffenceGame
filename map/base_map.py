@@ -1,4 +1,7 @@
 import pygame
+from resource.map_resouce import TILE_DEFINITIONS
+from resource.resouce_maneger import ResouceManeger
+
 #マップクラスの基底クラス
 """
 BaseMapクラスは、2Dゲームのマップを表現するための基底クラスです。
@@ -9,7 +12,7 @@ BaseMapクラスは、2Dゲームのマップを表現するための基底ク�
 
 class BaseMap:
     Z_ORDER = 0  # 描画順序の基底値
-    def __init__(self, width, height, screen_width, screen_height, tile_size=64,map_tiles=None):
+    def __init__(self, width, height, screen_width, screen_height, tile_size=64):
         self.width = width
         self.height = height
         self.tile_size = tile_size
@@ -17,7 +20,6 @@ class BaseMap:
         self.image = self._create_background_surface()
         self.rect = self.image.get_rect()
         self.camera = pygame.Rect(0, 0, screen_width, screen_height)
-        self.map_tiles = map_tiles  if map_tiles is not None else []
     def _create_background_surface(self):
         """タイルに基づいた背景サーフェスを生成します。"""
         background = pygame.Surface((self.width, self.height))
@@ -47,8 +49,6 @@ class BaseMap:
         self.camera.clamp_ip(self.rect)
 
     def draw(self, screen):
-        """マップとマップ上のオブジェクトをカメラ視点で描画します。"""
-        # 背景を描画
         screen.blit(self.image, (0, 0), self.camera)
         # オブジェクトを描画
         for obj in self.objects:
@@ -56,9 +56,6 @@ class BaseMap:
             if self.camera.colliderect(obj.rect):
                 # カメラからの相対位置を渡してオブジェクトを描画
                 obj.draw(screen, self.camera)
-    def make_map(self, map_tiles):
-        """マップのタイルを設定します。"""
-        pass #ここで対応する画像を読み込み、タイルを設定する処理を実装します。
-        # タイルを描画する処理を追加
-    def defalute_map(self):
+    def _create_default_map(self):
+        #継承してそれぞれのマップを作成する。
         return []

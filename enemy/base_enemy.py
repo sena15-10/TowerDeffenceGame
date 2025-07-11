@@ -5,6 +5,7 @@ from obstacle.base_obstacle import BaseObstacle
 import random
 
 class BaseEnemy(Character):
+    Z_ORDER = 2  # 敵キャラクターのZ-indexを2に設定
     def __init__(self, name, health, attack_power, speed=1, player=None, image_path=None):
         super().__init__(name, health, attack_power, speed, image_path)
         self.is_aggressive = True

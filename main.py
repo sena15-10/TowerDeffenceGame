@@ -3,8 +3,8 @@ import random
 from character.Player.sord_player import SordPlayer
 from enemy.slime.slime import Slime
 from obstacle.barricade import Barricade
-from map.base_map import BaseMap
-from spawner.slime_spawner import SlimeSpawner
+from map.water_map import WaterMap
+from spawner.slime_spanner import SlimeSpawner
 
 # Pygame initialization
 pygame.init()
@@ -15,7 +15,7 @@ screen = pygame.display.set_mode((width,height))
 pygame.display.set_caption("Pygame Example")
 
 # マップを作成
-game_map = BaseMap(2500, 2500, width, height)
+game_map = WaterMap(2500, 2500, width, height)
 
 player = SordPlayer("Hero", 100, 10, 5)  # speedを1に
 enemies = []
@@ -47,6 +47,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    
 
     # ターゲットリストを動的に作成
     targets = [player]

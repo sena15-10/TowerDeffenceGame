@@ -12,5 +12,4 @@ TILE_DEFINITIONS = {
     1: {"name": "water", "image": "map/maptile_mizu.png", "walkable": True},
     2: {"name": "water_lily", "image": "map/maptile_mizu_hasu_02.png", "walkable": True},
     # 必要に応じて他のタイル（道、森、壁など）を追加
-    3: {"name": "dirt", "image": "map/dirt.png", "walkable": True},
 }

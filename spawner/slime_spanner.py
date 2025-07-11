@@ -1,7 +1,8 @@
 import pygame
 import random
 from enemy.slime.slime import Slime
-
+from obstacle.base_obstacle import BaseObstacle
+from resource.resouce_maneger import ResouceManeger
 class SlimeSpawner:
     def __init__(self, x, y, spawn_interval, game_map, enemies_list, player):
         self.x = x
@@ -13,6 +14,7 @@ class SlimeSpawner:
         self.last_spawn_time = pygame.time.get_ticks()
         self.game_map = game_map
         self.enemies_list = enemies_list
+        self.image_path = "./resouce/character_monster_slime_red.png"
         self.player = player
         self.color = (0, 255, 0) # スポナーの色を緑に
 
@@ -27,7 +29,7 @@ class SlimeSpawner:
         spawn_x = self.x + random.randint(-30, 30)
         spawn_y = self.y + random.randint(-30, 30)
         
-        new_slime = Slime("Slime", 50, 5, 2, self.player)
+        new_slime = Slime("Slime", 50, 5, 2, self.image_path)
         new_slime.rect.topleft = (spawn_x, spawn_y)
         
         self.game_map.add_object(new_slime)

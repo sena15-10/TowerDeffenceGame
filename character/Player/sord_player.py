@@ -49,7 +49,7 @@ class SordPlayer(Character):
                 barricade_x = self.rect.right + 20
                 barricade_y = self.rect.centery
 
-            new_barricade = Barricade(barricade_x, barricade_y, 100, 100, 50)
+            new_barricade = Barricade(barricade_x, barricade_y, 1000, 100, 50)
             game_map.add_object(new_barricade)
             self.last_barricade_time = pygame.time.get_ticks()
             print("Barricade placed!")
