@@ -14,7 +14,7 @@ class PlayerableCharacter:
         # 移動入力
         dx = keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]
         dy = keys[pygame.K_DOWN] - keys[pygame.K_UP]
-        
+        print(game_map.__class__)
         # WASDキーでも移動可能
         if not (dx or dy):
             dx = keys[pygame.K_d] - keys[pygame.K_a]
@@ -50,5 +50,7 @@ class PlayerableCharacter:
                     if game_map:
                         self.player.place_barricade(game_map)
                     self.barricade_key_pressed_time = 0 # リセット
+                    print("リセットしました")
+                    
         else:
             self.barricade_key_pressed_time = 0

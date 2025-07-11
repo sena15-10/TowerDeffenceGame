@@ -52,6 +52,7 @@ class BaseObstacle:
         if self.is_destroyed:
             self.timer -= 1
             if self.timer <= 0:
+                print("バリケードが破壊されました")
                 return True # 削除を通知
         return False # 通常は削除しない
 

@@ -53,5 +53,4 @@ class ResouceManeger:
                 print(f"画像の読み込みに失敗しました: {path}")
                 raise e
 
-# シングルトンインスタンスを生成
-resouce_maneger = ResouceManeger()
+

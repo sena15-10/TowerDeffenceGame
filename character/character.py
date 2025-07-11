@@ -33,10 +33,10 @@ class Character:
             self.direction = self.direction.normalize()
 
 
-    def update(self, enemies=None, game_map=None):
+    def update(self, enemies=None,game_map=None):
         #入力値をもとに動く
         if self.playerable_character:
-            self.playerable_character.handle_input(enemies, game_map)
+            self.playerable_character.handle_input(enemies,game_map)
         self.rect.x += self.direction.x * self.speed
         self.rect.y += self.direction.y * self.speed
 

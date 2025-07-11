@@ -1,5 +1,6 @@
 import pygame
 from resource.map_resouce import TILE_DEFINITIONS
+from resource.resouce_maneger import ResouceManeger
 
 #マップクラスの基底クラス
 """
@@ -15,6 +16,7 @@ class BaseMap:
         self.width = width
         self.height = height
         self.tile_size = tile_size
+        self.resource_maneger = ResouceManeger() #マップの画像をシングルストンで管理する
         self.objects = []  # マップ上のオブジェクトを格納するリスト
         self.image = self._create_background_surface()
         self.rect = self.image.get_rect()
@@ -48,13 +50,32 @@ class BaseMap:
         self.camera.clamp_ip(self.rect)
 
     def draw(self, screen):
-        screen.blit(self.image, (0, 0), self.camera)
         # オブジェクトを描画
         for obj in self.objects:
             # オブジェクトがカメラに写っているか判定
+            print(obj.__class__.__name__) #どのオブジェクトが描画されるかどうかをデバック
             if self.camera.colliderect(obj.rect):
                 # カメラからの相対位置を渡してオブジェクトを描画
                 obj.draw(screen, self.camera)
+        for y,row in enumerate(self._create_default_map()):
+            for x,tile in enumerate(row):
+                tile_info = TILE_DEFINITIONS.get(tile, {})
+                image_id = tile_info.get('image')
+                if image_id:
+                    try:
+                        tile_image = self.resource_maneger.load_image(image_id)
+                        tile_x = x * self.tile_size - self.camera.left
+                        tile_y = y * self.tile_size - self.camera.top
+                        #カメラ内のみ表示する。
+                        if (tile_x > -self.tile_size and tile_x < self.camera.width and
+                        tile_y > -self.tile_size and tile_y < self.camera.height):
+                            screen.blit(tile_image, (tile_x, tile_y))
+                    except Exception as e:
+                        print(f"画像の読み込みに失敗しました: {image_id}")
+                        raise e
     def _create_default_map(self):
-        #継承してそれぞれのマップを作成する。
-        return []
+        """マップのタイル配置を定義する2次元配列を生成します。"""
+        tile_width = self.width // self.tile_size
+        tile_height = self.height // self.tile_size
+        # 例として、すべてのタイルをID 0 (例: 草地) で埋める
+        return [[0 for _ in range(tile_width)] for _ in range(tile_height)]

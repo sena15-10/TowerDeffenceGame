@@ -33,7 +33,7 @@ for _ in range(random.randint(4, 20)):
 for _ in range(random.randint(3, 4)):
     barricade_x = random.randint(0, game_map.width - 100)
     barricade_y = random.randint(0, game_map.height - 50)
-    barricade = Barricade(barricade_x, barricade_y,1000, 100, 50)
+    barricade = Barricade(barricade_x, barricade_y, 100, 100, 50)
     game_map.add_object(barricade)
 
 # オブジェクトをマップに追加
@@ -47,27 +47,25 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    
-
     # ターゲットリストを動的に作成
-    targets = [player]
+    targets = []
+    game_map.draw(screen)   # Draw map and objects
     for obj in game_map.objects:
-        if isinstance(obj, Barricade) and not obj.hp <= 0:  # バリケードが破壊されていない場合
+        if isinstance(obj, Barricade) and not obj.is_destroyed: # バリケードが破壊されていない場合
             targets.append(obj)
-    
     for enemy in enemies:
-        enemy.set_target(targets)
+        enemy.set_target(targets + [player]) # 敵のターゲットを更新
 
-    player.update(enemies, game_map)  # 敵のリストとマップを渡す
+    player.update(enemies)  # 敵のリストを渡す
     for spawner in spawners:
         spawner.update()
     for enemy in enemies:
         enemy.update()  # Update enemy character
     game_map.update(player) #プレイヤーに合わせてカメラを更新
 
-    screen.fill((0, 0, 0))  # Clear screen with black
+    # 6. 画面更新
+    screen.fill((0, 0, 0))  # ← この行が削除された
     game_map.draw(screen)   # Draw map and objects
-    pygame.display.flip()   # Update display
-    clock.tick(60)  # 追加
+    pygame.display.flip()  # Update the full display Surface to the screen
 
-pygame.quit()
+    clock.tick(60)  # 60 FPSに制限
