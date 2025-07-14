@@ -49,14 +49,13 @@ while running:
             running = False
     # ターゲットリストを動的に作成
     targets = []
-    game_map.draw(screen)   # Draw map and objects
     for obj in game_map.objects:
         if isinstance(obj, Barricade) and not obj.is_destroyed: # バリケードが破壊されていない場合
             targets.append(obj)
     for enemy in enemies:
         enemy.set_target(targets + [player]) # 敵のターゲットを更新
 
-    player.update(enemies)  # 敵のリストを渡す
+    player.update(enemies,game_map)  # 敵のリストを渡す
     for spawner in spawners:
         spawner.update()
     for enemy in enemies:
@@ -64,7 +63,7 @@ while running:
     game_map.update(player) #プレイヤーに合わせてカメラを更新
 
     # 6. 画面更新
-    screen.fill((0, 0, 0))  # ← この行が削除された
+    screen.fill((0, 0, 0))  # Clear screen
     game_map.draw(screen)   # Draw map and objects
     pygame.display.flip()  # Update the full display Surface to the screen
 

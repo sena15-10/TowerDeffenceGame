@@ -11,7 +11,7 @@ BaseMapクラスは、2Dゲームのマップを表現するための基底ク�
 """
 
 class BaseMap:
-    Z_ORDER = 0  # 描画順序の基底値
+    Z_ORDER = -1  # 描画順序の基底値（最低レイヤー）
     def __init__(self, width, height, screen_width, screen_height, tile_size=64):
         self.width = width
         self.height = height
@@ -50,29 +50,41 @@ class BaseMap:
         self.camera.clamp_ip(self.rect)
 
     def draw(self, screen):
-        # オブジェクトを描画
-        for obj in self.objects:
-            # オブジェクトがカメラに写っているか判定
-            print(obj.__class__.__name__) #どのオブジェクトが描画されるかどうかをデバック
-            if self.camera.colliderect(obj.rect):
-                # カメラからの相対位置を渡してオブジェクトを描画
-                obj.draw(screen, self.camera)
-        for y,row in enumerate(self._create_default_map()):
-            for x,tile in enumerate(row):
-                tile_info = TILE_DEFINITIONS.get(tile, {})
-                image_id = tile_info.get('image')
-                if image_id:
-                    try:
-                        tile_image = self.resource_maneger.load_image(image_id)
-                        tile_x = x * self.tile_size - self.camera.left
-                        tile_y = y * self.tile_size - self.camera.top
-                        #カメラ内のみ表示する。
-                        if (tile_x > -self.tile_size and tile_x < self.camera.width and
-                        tile_y > -self.tile_size and tile_y < self.camera.height):
+        # 背景タイルを先に描画（最低レイヤー）
+        self._draw_background_tiles(screen)
+        
+        # オブジェクトをZ_ORDERでソートして描画
+        visible_objects = [obj for obj in self.objects if self.camera.colliderect(obj.rect)]
+        visible_objects.sort(key=lambda obj: getattr(obj, 'Z_ORDER', 0))
+        
+        for obj in visible_objects:
+            obj.draw(screen, self.camera)
+    
+    def _draw_background_tiles(self, screen):
+        """背景タイルを効率的に描画します。"""
+        map_data = self._create_default_map()
+        
+        # カメラの範囲内のタイルのみを計算
+        start_x = max(0, self.camera.left // self.tile_size)
+        end_x = min(len(map_data[0]), (self.camera.right + self.tile_size - 1) // self.tile_size)
+        start_y = max(0, self.camera.top // self.tile_size)
+        end_y = min(len(map_data), (self.camera.bottom + self.tile_size - 1) // self.tile_size)
+        
+        for y in range(start_y, end_y):
+            for x in range(start_x, end_x):
+                if y < len(map_data) and x < len(map_data[y]):
+                    tile = map_data[y][x]
+                    tile_info = TILE_DEFINITIONS.get(tile, {})
+                    image_id = tile_info.get('image')
+                    if image_id:
+                        try:
+                            tile_image = self.resource_maneger.load_image(image_id)
+                            tile_x = x * self.tile_size - self.camera.left
+                            tile_y = y * self.tile_size - self.camera.top
                             screen.blit(tile_image, (tile_x, tile_y))
-                    except Exception as e:
-                        print(f"画像の読み込みに失敗しました: {image_id}")
-                        raise e
+                        except Exception as e:
+                            print(f"画像の読み込みに失敗しました: {image_id}")
+                            raise e
     def _create_default_map(self):
         """マップのタイル配置を定義する2次元配列を生成します。"""
         tile_width = self.width // self.tile_size
