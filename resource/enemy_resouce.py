@@ -1,3 +1,5 @@
+"""敵の画像一覧"""
+
 ENEMY_IMAGES = {
-    "slime": "./resouce/character_monster_slime_red.png",
+    "redSlime": "./resource/img/enemy/character_monster_slime_red.png",
 }
