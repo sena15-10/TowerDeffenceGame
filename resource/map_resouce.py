@@ -1,7 +1,7 @@
-#マップのリソースすべてを管理するクラス
-#マップサイズは基本的に64x64のタイルを使用
-#タイルの画像はimg/mapフォルダに保存されている
+"""マップのリソースすべてを管理するクラス,マップサイズは基本的に64x64のタイルを使用"""
 
+
+#タイルの画像はimg/mapフォルダに保存されている
 # タイルIDをキーとし、プロパティを値とする辞書
 # "image": 画像ファイルへのパス (プロジェクトルートのimg/からの相対パス)
 # "walkable": キャラクターが通行可能かどうか
@@ -11,5 +11,7 @@ TILE_DEFINITIONS = {
     0: {"name": "grass", "image": "resource/img/map/grass.png", "walkable": True},
     1: {"name": "water", "image": "resource/img/map/maptile_mizu.png", "walkable": True},
     2: {"name": "water_lily", "image": "resource/img/map/maptile_mizu_hasu_02.png", "walkable": True},
+    3:{"name":"wood1","image":"resource/img/map/ki_01.png","walkable":False},
+    4:{"name":"wood2","image":"resource/img/map/ki_02.png","walkable":False}
     # 必要に応じて他のタイル（道、森、壁など）を追加
 }

@@ -18,7 +18,10 @@ class BaseObstacle:
         self.lv = lv
         self.timer = 0 # タイマーを0で初期化
         self.is_destroyed = False
-        self.type = "obstacle"
+        self.type = "obstacle" 
+        self.target = True #オブジェクトが敵から狙われるかどうかの判定
+        #通行可能かどうか
+        self.passage_type = "" #enemyかplayerが入る。どのタイプが通行止めか
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def is_colliding(self, other):

@@ -61,8 +61,20 @@ class BaseEnemy(Character):
             else:
                 if distance > 0:
                     direction = direction.normalize()
-                    self.rect.x += direction.x * self.speed
-                    self.rect.y += direction.y * self.speed
+                    # 移動前の位置を保存
+                    old_x, old_y = self.rect.x, self.rect.y
+                    # 新しい位置を計算
+                    new_x = self.rect.x + direction.x * self.speed
+                    new_y = self.rect.y + direction.y * self.speed
+                    # 障害物との衝突をチェック（マップが利用可能な場合）
+                    if hasattr(self, 'game_map') and self.game_map:
+                        if not self._check_collision(new_x, new_y, self.game_map):
+                            self.rect.x = new_x
+                            self.rect.y = new_y
+                    else:
+                        # マップ情報がない場合は従来通り移動
+                        self.rect.x = new_x
+                        self.rect.y = new_y
 
     def can_attack(self):
         """攻撃可能かどうかを確認するメソッド"""

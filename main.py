@@ -51,9 +51,11 @@ while running:
     targets = []
     for obj in game_map.objects:
         if isinstance(obj, Barricade) and not obj.is_destroyed: # バリケードが破壊されていない場合
-            targets.append(obj)
+            targets.append(obj) if obj not in targets else None
+        
     for enemy in enemies:
         enemy.set_target(targets + [player]) # 敵のターゲットを更新
+        enemy.game_map = game_map  # 敵にマップ情報を提供
 
     player.update(enemies,game_map)  # 敵のリストを渡す
     for spawner in spawners:

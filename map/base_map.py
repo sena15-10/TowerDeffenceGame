@@ -1,6 +1,9 @@
 import pygame
+import random
+import math
 from resource.map_resouce import TILE_DEFINITIONS
 from resource.resouce_maneger import ResouceManeger
+from obstacle.tree import Tree
 
 #マップクラスの基底クラス
 """
@@ -91,3 +94,5 @@ class BaseMap:
         tile_height = self.height // self.tile_size
         # 例として、すべてのタイルをID 0 (例: 草地) で埋める
         return [[0 for _ in range(tile_width)] for _ in range(tile_height)]
+    
+   

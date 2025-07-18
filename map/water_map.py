@@ -4,10 +4,15 @@ from map.base_map import BaseMap
 #2500 * 2500世界サイズ
 #縦  40
 #横  40
-
+import pygame
+import random
+import math
+from obstacle.tree import Tree
 class WaterMap(BaseMap):
     def __init__(self, width, height, screen_width, screen_height, tile_size=64):
         super().__init__(width, height, screen_width, screen_height, tile_size)
+        # 森を生成（草地エリアに密集したクラスターとして配置）
+        self.generate_forests(num_forests=3, min_trees_per_forest=20, max_trees_per_forest=30)
     def _create_default_map(self):
         return  [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -47,5 +52,123 @@ class WaterMap(BaseMap):
                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],]
+                 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],]
 
+    def generate_forests(self, num_forests=5, min_trees_per_forest=15, max_trees_per_forest=40):
+            """
+            マップ上の草地エリアに森をクラスター状に生成します。
+            
+            Args:
+                num_forests: 生成する森の数
+                min_trees_per_forest: 各森の最小木の数
+                max_trees_per_forest: 各森の最大木の数
+            """
+            map_data = self._create_default_map()
+            tile_height = len(map_data)
+            tile_width = len(map_data[0]) if tile_height > 0 else 0
+            
+            # 草地タイル(ID=0)の位置を収集
+            grassland_tiles = []
+            for y in range(tile_height):
+                for x in range(min(tile_width, len(map_data[y]))):
+                    if map_data[y][x] == 0:  # 草地タイル
+                        grassland_tiles.append((x, y))
+
+            
+            if not grassland_tiles:
+                return  # 草地がない場合は何もしない
+            
+            # 森のクラスター中心を選択
+            for _ in range(num_forests):
+                if not grassland_tiles:
+                    break
+                    
+                # ランダムに森の中心を選択
+                center_tile = random.choice(grassland_tiles)
+                center_x, center_y = center_tile
+                center_world_x = center_x * self.tile_size + self.tile_size // 2
+                center_world_y = center_y * self.tile_size + self.tile_size // 2
+                
+                # 森の大きさを決定
+                trees_in_forest = random.randint(min_trees_per_forest, max_trees_per_forest)
+                
+                # クラスター半径を動的に計算
+                cluster_radius = max(2, int(math.sqrt(trees_in_forest) * self.tile_size * 0.7))
+                
+                # 森を生成
+                self._generate_forest_cluster(
+                    center_world_x, center_world_y, 
+                    cluster_radius, trees_in_forest, map_data
+                )
+        
+    def _generate_forest_cluster(self, center_x, center_y, radius, num_trees, map_data):
+        """
+        指定された中心点周辺に森のクラスターを生成します。
+        
+        Args:
+            center_x, center_y: 森の中心座標（ワールド座標）
+            radius: クラスターの半径
+            num_trees: 生成する木の数
+            map_data: マップのタイルデータ
+        """
+        placed_trees = 0
+        attempts = 0
+        max_attempts = num_trees * 3  # 無限ループを防ぐ
+        
+        while placed_trees < num_trees and attempts < max_attempts:
+            attempts += 1
+            
+            # 中心からの距離に基づく確率分布で位置を生成
+            # 中心に近いほど配置確率が高い
+            angle = random.uniform(0, 2 * math.pi)
+            # 中心に偏った分布を作るため、べき乗分布を使用
+            distance_factor = random.uniform(0, 1) ** 1.5  # 中心に偏らせる
+            distance = distance_factor * radius
+            
+            tree_x = center_x + math.cos(angle) * distance
+            tree_y = center_y + math.sin(angle) * distance
+            
+            # タイル座標に変換
+            tile_x = int(tree_x // self.tile_size)
+            tile_y = int(tree_y // self.tile_size)
+            
+            # 有効な位置かチェック
+            if self._is_valid_tree_position(tree_x, tree_y, tile_x, tile_y, map_data):
+                # 木を配置
+                tree = Tree(
+                    x=tile_x * self.tile_size, 
+                    y=tile_y * self.tile_size,
+                    tile_size=self.tile_size
+                )
+                self.add_object(tree)
+                placed_trees += 1
+    
+    def _is_valid_tree_position(self, world_x, world_y, tile_x, tile_y, map_data):
+        """
+        木を配置できる有効な位置かチェックします。
+        
+        Args:
+            world_x, world_y: ワールド座標
+            tile_x, tile_y: タイル座標
+            map_data: マップのタイルデータ
+        """
+        # マップ範囲内かチェック
+        if (tile_x < 0 or tile_y < 0 or 
+            tile_y >= len(map_data) or 
+            (len(map_data) > 0 and tile_x >= len(map_data[0])) or
+            tile_x >= len(map_data[tile_y]) if tile_y < len(map_data) else True):
+            return False
+        
+        # 草地タイル(ID=0)かチェック
+        if map_data[tile_y][tile_x] != 0:
+            return False
+        
+        # 既存オブジェクトとの重複チェック
+        tree_rect = pygame.Rect(tile_x * self.tile_size, tile_y * self.tile_size, 
+                            self.tile_size, self.tile_size)
+        
+        for obj in self.objects:
+            if tree_rect.colliderect(obj.rect):
+                return False
+        
+        return True

@@ -34,11 +34,37 @@ class Character:
 
 
     def update(self, enemies=None,game_map=None):
-        #入力値をもとに動く
-        if self.playerable_character:
-            self.playerable_character.handle_input(enemies,game_map)
-        self.rect.x += self.direction.x * self.speed
-        self.rect.y += self.direction.y * self.speed
+        """
+        キャラクターの基本的な更新処理。
+        サブクラス（PlayerやBaseEnemy）でオーバーライドされることを想定。
+        """
+        # 基本的な移動ロジックのみ残す
+        if self.direction.length() > 0:
+            self.rect.x += self.direction.x * self.speed
+            self.rect.y += self.direction.y * self.speed
+    
+    def _check_collision(self, new_x, new_y, game_map):
+        """新しい位置で障害物との衝突をチェックします"""
+        # 新しい位置での仮想的なrectを作成
+        test_rect = pygame.Rect(new_x, new_y, self.rect.width, self.rect.height)
+
+        # マップ上の全オブジェクトとの衝突をチェック
+        for obj in game_map.objects:
+            # 自分自身は除外
+            if obj == self:
+                continue
+            # 障害物タイプかつ通行不可能かチェック
+            if (hasattr(obj, 'type') and obj.type in [ 'barricade', 'obstacle', 'tree'] and
+                hasattr(obj, 'is_passable') and not obj.is_passable()):
+                if test_rect.colliderect(obj.rect):
+                    return True  # 衝突検出
+            # 旧式のタイプチェック（BaseObstacle継承オブジェクト）
+            elif hasattr(obj, 'is_colliding'):
+                temp_obj = type('TempObj', (), {'x': new_x, 'y': new_y, 'width': self.rect.width, 'height': self.rect.height})()
+                if obj.is_colliding(temp_obj):
+                    return True  # 衝突検出
+        
+        return False  # 衝突なし
 
     def draw(self, surface, camera):
         # カメラからの相対位置を計算して描画
@@ -65,5 +91,3 @@ class Character:
         #エンターキーを押したときに攻撃
         pass
         
-
-

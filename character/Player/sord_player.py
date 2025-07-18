@@ -1,9 +1,9 @@
-from character.character import Character
-from character.playerable_charcter import PlayerableCharacter
+from character.Player.base_player import BasePlayer
+from character.Player.playerable_charcter import PlayerableCharacter
 import pygame
 from obstacle.barricade import Barricade
 
-class SordPlayer(Character):
+class SordPlayer(BasePlayer):
     def __init__(self, name, health, attack_power, speed=1, image_path=None):
         super().__init__(name, health, attack_power, speed, image_path)
         self.playerable_character =  PlayerableCharacter(self) # プレイヤー操作クラスのインスタンスを後で設定
