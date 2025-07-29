@@ -9,7 +9,7 @@ class Tree(BaseObstacle):
     
     Z_ORDER = 1  # Trees appear above ground but below flying objects
     
-    def __init__(self, x, y, tree_type=None, tile_size=64):
+    def __init__(self, x, y, tree_type=None, width=64, height=64):
         # Tree images from map resources
         tree_images = {
             1: "resource/img/map/ki_01.png",
@@ -25,8 +25,8 @@ class Tree(BaseObstacle):
             x=x, 
             y=y, 
             hp=999999,  # Effectively indestructible
-            width=tile_size, 
-            height=tile_size,
+            width=width, 
+            height=height,
             image_path=image_path,
             color=(34, 139, 34),  # Forest green fallback color
             lv=1

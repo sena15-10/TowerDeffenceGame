@@ -1,20 +1,14 @@
 import pygame
 import random
 from enemy.slime.slime import Slime
+from spawner.enemy_spanner import EnemyBaseSpanner
 from resource.resouce_maneger import ResouceManeger
 from resource.enemy_resouce import ENEMY_IMAGES 
-class SlimeSpawner:
+class SlimeSpawner(EnemyBaseSpanner):
     def __init__(self, x, y, spawn_interval, game_map, enemies_list, player):
-        self.x = x
-        self.y = y
-        self.width = 50
-        self.height = 50
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.spawn_interval = spawn_interval  # ミリ秒単位
-        self.last_spawn_time = pygame.time.get_ticks()
+        super().__init__(x, y, 100, 50, 50, Slime, image_path=ENEMY_IMAGES["redSlime"], spawn_interval=spawn_interval)
         self.game_map = game_map
         self.enemies_list = enemies_list
-        self.image_path = ENEMY_IMAGES["redSlime"]
         self.player = player
         self.color = (0, 255, 0) # スポナーの色を緑に
 

@@ -12,7 +12,7 @@ class WaterMap(BaseMap):
     def __init__(self, width, height, screen_width, screen_height, tile_size=64):
         super().__init__(width, height, screen_width, screen_height, tile_size)
         # 森を生成（草地エリアに密集したクラスターとして配置）
-        self.generate_forests(num_forests=3, min_trees_per_forest=20, max_trees_per_forest=30)
+        self.generate_forests(num_forests=3, min_trees_per_forest=10, max_trees_per_forest=20)
     def _create_default_map(self):
         return  [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -132,25 +132,37 @@ class WaterMap(BaseMap):
             tile_x = int(tree_x // self.tile_size)
             tile_y = int(tree_y // self.tile_size)
             
+            # 木のサイズをランダムに決定 (例: 80x80 から 128x128)
+            tree_size = random.randint(80, 160)
+            tree_width = tree_size
+            tree_height = tree_size
+
+            # 木のアンカーがタイルの下端中央に来るように座標を計算
+            tree_pos_x = tile_x * self.tile_size + (self.tile_size - tree_width) / 2
+            tree_pos_y = tile_y * self.tile_size + self.tile_size - tree_height
+
             # 有効な位置かチェック
-            if self._is_valid_tree_position(tree_x, tree_y, tile_x, tile_y, map_data):
+            if self._is_valid_tree_position(tile_x, tile_y, map_data, tree_pos_x, tree_pos_y, tree_width, tree_height):
                 # 木を配置
                 tree = Tree(
-                    x=tile_x * self.tile_size, 
-                    y=tile_y * self.tile_size,
-                    tile_size=self.tile_size
+                    x=tree_pos_x,
+                    y=tree_pos_y,
+                    width=tree_width,
+                    height=tree_height
                 )
                 self.add_object(tree)
                 placed_trees += 1
     
-    def _is_valid_tree_position(self, world_x, world_y, tile_x, tile_y, map_data):
+    def _is_valid_tree_position(self, tile_x, tile_y, map_data, tree_pos_x, tree_pos_y, tree_width, tree_height):
         """
         木を配置できる有効な位置かチェックします。
         
         Args:
-            world_x, world_y: ワールド座標
             tile_x, tile_y: タイル座標
             map_data: マップのタイルデータ
+            tree_pos_x, tree_pos_y: 木のワールド座標 (左上)
+            tree_width (int): 木の幅
+            tree_height (int): 木の高さ
         """
         # マップ範囲内かチェック
         if (tile_x < 0 or tile_y < 0 or 
@@ -164,8 +176,7 @@ class WaterMap(BaseMap):
             return False
         
         # 既存オブジェクトとの重複チェック
-        tree_rect = pygame.Rect(tile_x * self.tile_size, tile_y * self.tile_size, 
-                            self.tile_size, self.tile_size)
+        tree_rect = pygame.Rect(tree_pos_x, tree_pos_y, tree_width, tree_height)
         
         for obj in self.objects:
             if tree_rect.colliderect(obj.rect):

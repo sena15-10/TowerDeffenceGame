@@ -1,5 +1,7 @@
 import pygame
 import random
+from obstacle.base_obstacle import BaseObstacle
+
 class Character:
     def __init__(self, name,health,attack_power,speed=1,image_path=None):
         self.health = health
@@ -44,26 +46,34 @@ class Character:
             self.rect.y += self.direction.y * self.speed
     
     def _check_collision(self, new_x, new_y, game_map):
-        """新しい位置で障害物との衝突をチェックします"""
+        """新しい位置でオブジェクトとの衝突をチェックします。
+        - 自分自身とは衝突しない
+        - 同じタイプ(敵同士、味方同士)のキャラクターとは衝突しない
+        - 通行が許可されている障害物(passage_type)とは衝突しない
+        - 上記以外とは衝突する
+        """
         # 新しい位置での仮想的なrectを作成
         test_rect = pygame.Rect(new_x, new_y, self.rect.width, self.rect.height)
 
-        # マップ上の全オブジェクトとの衝突をチェック
+        # マップ上の全オブジェクトをチェック
         for obj in game_map.objects:
-            # 自分自身は除外
+            # 自分自身はチェック対象外
             if obj == self:
                 continue
-            # 障害物タイプかつ通行不可能かチェック
-            if (hasattr(obj, 'type') and obj.type in [ 'barricade', 'obstacle', 'tree'] and
-                hasattr(obj, 'is_passable') and not obj.is_passable()):
-                if test_rect.colliderect(obj.rect):
-                    return True  # 衝突検出
-            # 旧式のタイプチェック（BaseObstacle継承オブジェクト）
-            elif hasattr(obj, 'is_colliding'):
-                temp_obj = type('TempObj', (), {'x': new_x, 'y': new_y, 'width': self.rect.width, 'height': self.rect.height})()
-                if obj.is_colliding(temp_obj):
-                    return True  # 衝突検出
-        
+
+            # --- 通り抜けられる条件 ---
+            # 1. 相手が同じタイプのキャラクター(敵同士、味方同士)の場合
+            if isinstance(obj, Character) and obj.type == self.type:
+                continue
+            # 2. 相手が障害物で、通行が許可されている(passage_typeが一致する)場合
+            if isinstance(obj, BaseObstacle) and hasattr(obj, 'passage_type') and obj.passage_type == self.type:
+                continue
+
+            # --- 衝突判定 ---
+            # 上記の「通り抜け」条件に当てはまらないオブジェクトと衝突するかチェック
+            if hasattr(obj, 'rect') and test_rect.colliderect(obj.rect):
+                return True  # 衝突を検出
+
         return False  # 衝突なし
 
     def draw(self, surface, camera):

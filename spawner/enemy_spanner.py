@@ -7,6 +7,7 @@ class EnemyBaseSpanner(BaseObstacle):
         super().__init__(x, y, hp, width, height, image_path, color, lv)
         self.obj = obj #敵のオブジェクトを格納
         self.type = "enemy_spawner"  # スポナーのタイプを設定
+        self.passage_type = "enemy"  # 敵が通行可能な障害物
         self.spawned_enemies = []  # スポーンした敵キャラクターのリスト
         self.spawn_interval = spawn_interval  # ミリ秒単位でスポーン間隔
         self.last_spawn_time = pygame.time.get_ticks()  # 最後にスポーンした時刻
